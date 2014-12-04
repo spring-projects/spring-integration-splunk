@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 the original author or authors.
+ * Copyright 2013-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.integration.splunk.inbound;
 
 import static org.mockito.Mockito.*;
@@ -45,7 +46,7 @@ public class SplunkPollingChannelAdapterTests {
 	}
 
 	/**
-	 * Test method for {@link org.springframework.integration.splunk.inbound.SplunkPollingChannelAdapter#receive()}.
+	 * Test method for {@link SplunkPollingChannelAdapter#receive()}.
 	 */
 	@Test
 	public void testReceive() {
@@ -60,7 +61,7 @@ public class SplunkPollingChannelAdapterTests {
 	}
 
 	/**
-	 * Test method for {@link org.springframework.integration.splunk.inbound.SplunkPollingChannelAdapter#getComponentType()}.
+	 * Test method for {@link SplunkPollingChannelAdapter#getComponentType()}.
 	 */
 	@Test
 	public void testGetComponentType() {

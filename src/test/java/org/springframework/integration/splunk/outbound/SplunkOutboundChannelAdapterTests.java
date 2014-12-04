@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 the original author or authors.
+ * Copyright 2013-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.integration.splunk.outbound;
 
 import static org.mockito.Mockito.*;
@@ -42,7 +43,7 @@ public class SplunkOutboundChannelAdapterTests {
 	}
 
 	/**
-	 * Test method for {@link org.springframework.integration.splunk.outbound.SplunkOutboundChannelAdapter#handleRequestMessage(org.springframework.integration.Message)}.
+	 * Test method for {@link SplunkOutboundChannelAdapter#handleRequestMessage}.
 	 */
 	@Test
 	public void testHandleRequestMessage() {
@@ -54,7 +55,7 @@ public class SplunkOutboundChannelAdapterTests {
 	}
 
 	/**
-	 * Test method for {@link org.springframework.integration.splunk.outbound.SplunkOutboundChannelAdapter#setProducesReply(boolean)}.
+	 * Test method for {@link SplunkOutboundChannelAdapter#setProducesReply(boolean)}.
 	 */
 	@Test
 	public void testSetProducesReply() {

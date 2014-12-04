@@ -128,10 +128,10 @@ The outbound channel adapter requires a child *-writer element which defines rel
 Alternatively, you can configure a Splunk Server failover mechanism
 
 ```xml
-  <int-splunk:server id="splunkServer" username="admin" password="password" timeout="5000" 
+  <int-splunk:server id="splunkServer" username="admin" password="password" timeout="5000"
   					 host="somehost.someplace.com" port="9000" />
 
-  <int-splunk:server id="splunkServerBackup" username="admin" password="password" timeout="5000" 
+  <int-splunk:server id="splunkServerBackup" username="admin" password="password" timeout="5000"
    					 host="somehost.someotherplace.com" port="9000" />
 
   <util:list id="splunkServersList">
@@ -151,7 +151,8 @@ Additional server properties include (see [splunk](http://docs.splunk.com/Docume
 * scope
 * owner
 
-The default host is *localhost* and the default port is *8089*. The *timeout* attribute indicates how long to wait for a connection in miliseconds.
+The default host is *localhost* and the default port is *8089*. The *timeout* attribute indicates how long to wait
+for a connection in milliseconds.
 
 
 Development

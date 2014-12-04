@@ -23,15 +23,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import com.splunk.Args;
-import com.splunk.Job;
-import com.splunk.ResultsReader;
-import com.splunk.ResultsReaderXml;
-import com.splunk.SavedSearch;
-import com.splunk.SavedSearchCollection;
-import com.splunk.Service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,6 +33,18 @@ import org.springframework.integration.splunk.core.ServiceFactory;
 import org.springframework.integration.splunk.event.SplunkEvent;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import com.splunk.Args;
+import com.splunk.Job;
+import com.splunk.JobArgs;
+import com.splunk.JobExportArgs;
+import com.splunk.ResultsReader;
+import com.splunk.ResultsReaderXml;
+import com.splunk.SavedSearch;
+import com.splunk.SavedSearchCollection;
+import com.splunk.SavedSearchCollectionArgs;
+import com.splunk.SavedSearchDispatchArgs;
+import com.splunk.Service;
 
 /**
  * Data reader to search data from Splunk.
@@ -53,8 +57,9 @@ import org.springframework.util.StringUtils;
  * If user does not specify earliestTime and latestTime, latestTime is "now"
  * earliestTime is the time that last polling is run.
  *
- * @author  Jarred Li
+ * @author Jarred Li
  * @author Olivier Lamy
+ * @author Artem Bilan
  * @since 1.0
  *
  */
@@ -180,33 +185,31 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 	public List<SplunkEvent> read() throws Exception {
 		logger.debug("mode:" + this.mode);
 		switch (this.mode) {
-		case SAVEDSEARCH: {
-			return savedSearch();
-		}
-		case BLOCKING: {
-			return blockingSearch();
-		}
-		case NORMAL: {
-			return nonBlockingSearch();
-		}
-		case EXPORT: {
-			return exportSearch();
-		}
-		case REALTIME: {
-			throw new UnsupportedOperationException("The 'real-time' search isn't supported " +
-					"because of the infinite Splunk Job nature.");
+			case SAVEDSEARCH: {
+				return savedSearch();
+			}
+			case BLOCKING: {
+				return blockingSearch();
+			}
+			case NORMAL: {
+				return nonBlockingSearch();
+			}
+			case EXPORT: {
+				return exportSearch();
+			}
+			case REALTIME: {
+				throw new UnsupportedOperationException("The 'real-time' search isn't supported " +
+						"because of the infinite Splunk Job nature.");
 //			return realtimeSearch();
-		}
+			}
 		}
 		return null;
 	}
 
 	/**
 	 * Get the earliestTime of range search.
-	 *
 	 * @param startTime the time where search start
 	 * @param realtime if this is realtime search
-	 *
 	 * @return The time of last successful read if not realtime;
 	 *         Time difference between last successful read and start time;
 	 */
@@ -220,12 +223,6 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		return result;
 	}
 
-	/**
-	 * get earliest time for realtime search
-	 *
-	 * @param startTime
-	 * @return
-	 */
 	private String calculateEarliestTimeForRealTime(Calendar startTime) {
 		String result = null;
 		long diff = startTime.getTimeInMillis() - this.lastSuccessfulReadTime.getTimeInMillis();
@@ -255,10 +252,12 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		String lTime = null;
 		if (StringUtils.hasText(this.latestTime)) {
 			lTime = this.latestTime;
-		} else {
+		}
+		else {
 			if (realtime) {
 				lTime = "rt";
-			} else {
+			}
+			else {
 				DateFormat df = new SimpleDateFormat(DATE_FORMAT);
 				lTime = df.format(startTime.getTime());
 			}
@@ -271,15 +270,18 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 
 		if (this.lastSuccessfulReadTime == null) {
 			eTime = this.initEarliestTime;
-		} else {
+		}
+		else {
 			if (StringUtils.hasText(earliestTime)) {
 				eTime = this.earliestTime;
-			} else {
+			}
+			else {
 				String calculatedEarliestTime = calculateEarliestTime(startTime, realtime);
 				if (calculatedEarliestTime != null) {
 					if (realtime) {
 						eTime = "rt" + calculatedEarliestTime;
-					} else {
+					}
+					else {
 						eTime = calculatedEarliestTime;
 					}
 				}
@@ -288,7 +290,7 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		return eTime;
 	}
 
-	private List<SplunkEvent> runQuery(Args queryArgs) throws Exception {
+	private List<SplunkEvent> runQuery(JobArgs queryArgs) throws Exception {
 		Service service = this.serviceFactory.getService();
 		Job job = service.getJobs().create(this.search, queryArgs);
 		while (!job.isDone()) {
@@ -301,8 +303,8 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 	private List<SplunkEvent> blockingSearch() throws Exception {
 		logger.debug("block search start");
 
-		Args queryArgs = new Args();
-		queryArgs.put("exec_mode", "blocking");
+		JobArgs queryArgs = new JobArgs();
+		queryArgs.setExecutionMode(JobArgs.ExecutionMode.BLOCKING);
 		Calendar startTime = Calendar.getInstance();
 		populateArgs(queryArgs, startTime, false);
 		List<SplunkEvent> data = runQuery(queryArgs);
@@ -313,8 +315,8 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 	private List<SplunkEvent> nonBlockingSearch() throws Exception {
 		logger.debug("non block search start");
 
-		Args queryArgs = new Args();
-		queryArgs.put("exec_mode", "normal");
+		JobArgs queryArgs = new JobArgs();
+		queryArgs.setExecutionMode(JobArgs.ExecutionMode.NORMAL);
 		Calendar startTime = Calendar.getInstance();
 		populateArgs(queryArgs, startTime, false);
 
@@ -323,15 +325,11 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		return data;
 	}
 
-	/**
-	 * @return
-	 * @throws Exception
-	 */
 	private List<SplunkEvent> realtimeSearch() throws Exception {
 		logger.debug("realtime search start");
 
-		Args queryArgs = new Args();
-		queryArgs.put("search_mode", "realtime");
+		JobArgs queryArgs = new JobArgs();
+		queryArgs.setSearchMode(JobArgs.SearchMode.REALTIME);
 		Calendar startTime = Calendar.getInstance();
 		populateArgs(queryArgs, startTime, true);
 
@@ -350,10 +348,11 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		HashMap<String, String> data;
 		SplunkEvent splunkData;
 
-		Args queryArgs = new Args();
+		JobExportArgs queryArgs = new JobExportArgs();
+		queryArgs.setOutputMode(JobExportArgs.OutputMode.XML);
+
 		Calendar startTime = Calendar.getInstance();
 		populateArgs(queryArgs, startTime, false);
-		queryArgs.put("output_mode", "xml");
 
 		Service service = this.serviceFactory.getService();
 		InputStream os = service.export(this.search, queryArgs);
@@ -368,42 +367,45 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 	private List<SplunkEvent> savedSearch() throws Exception {
 		logger.debug("saved search start");
 
-		Args queryArgs = new Args();
-		queryArgs.put("app", "search");
-		if (this.owner != null && this.owner.length() > 0) {
-			queryArgs.put("owner", this.owner);
+		SavedSearchCollectionArgs queryArgs = new SavedSearchCollectionArgs();
+		if (StringUtils.hasText(this.owner)) {
+			queryArgs.setOwner(this.owner);
 		}
-		if (this.app != null && this.app.length() > 0) {
-			queryArgs.put("app", this.app);
-		}
+		queryArgs.setApp(StringUtils.hasText(this.app) ? this.app : "-");
 
 		Calendar startTime = Calendar.getInstance();
 
-			SavedSearch search = null;
-			Job job = null;
-			String latestTime = getLatestTime(startTime, false);
-			String earliestTime = getEarliestTime(startTime, false);
+		String latestTime = getLatestTime(startTime, false);
+		String earliestTime = getEarliestTime(startTime, false);
 
-			Service service = this.serviceFactory.getService();
-			SavedSearchCollection savedSearches = service.getSavedSearches(queryArgs);
-			for (SavedSearch s : savedSearches.values()) {
-				if (s.getName().equals(this.savedSearch)) {
-					search = s;
-				}
+		Service service = this.serviceFactory.getService();
+		SavedSearchCollection savedSearches = service.getSavedSearches(queryArgs);
+
+		SavedSearch search = null;
+		for (SavedSearch s : savedSearches.values()) {
+			if (s.getName().equals(this.savedSearch)) {
+				search = s;
 			}
-			if (search != null) {
-				Map<String, String> args = new HashMap<String, String>();
-				args.put("force_dispatch", "true");
-				args.put("dispatch.earliest_time", earliestTime);
-				args.put("dispatch.latest_time", latestTime);
-				job = search.dispatch(args);
-			}
-			while (!job.isDone()) {
-				Thread.sleep(2000);
-			}
-			List<SplunkEvent> data = extractData(job);
-			this.lastSuccessfulReadTime = startTime;
-			return data;
+		}
+
+		Job job = null;
+		if (search != null) {
+			SavedSearchDispatchArgs args = new SavedSearchDispatchArgs();
+			args.setForceDispatch(true);
+			args.setDispatchEarliestTime(earliestTime);
+			args.setDispatchLatestTime(latestTime);
+			job = search.dispatch(args);
+		}
+		else {
+			return null;
+		}
+
+		while (!job.isDone()) {
+			Thread.sleep(2000);
+		}
+		List<SplunkEvent> data = extractData(job);
+		this.lastSuccessfulReadTime = startTime;
+		return data;
 
 	}
 
@@ -426,7 +428,8 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 				splunkData = new SplunkEvent(data);
 				result.add(splunkData);
 			}
-		} else {
+		}
+		else {
 			int offset = 0;
 			while (offset < total) {
 				InputStream stream = null;

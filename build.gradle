@@ -37,12 +37,12 @@ sourceCompatibility=1.6
 targetCompatibility=1.6
 
 ext {
-	linkHomepage = 'https://github.com/spring-projects/spring-integration-extensions'
+	linkHomepage = 'https://github.com/spring-projects/spring-integration-splunk'
 	linkCi       = 'https://build.spring.io/browse/INTEXT'
 	linkIssue    = 'https://jira.spring.io/browse/INTEXT'
-	linkScmUrl           = 'https://github.com/spring-projects/spring-integration-extensions'
-	linkScmConnection    = 'https://github.com/spring-projects/spring-integration-extensions.git'
-	linkScmDevConnection = 'git@github.com:spring-projects/spring-integration-extensions.git'
+	linkScmUrl           = 'https://github.com/spring-projects/spring-integration-splunk'
+	linkScmConnection    = 'https://github.com/spring-projects/spring-integration-splunk.git'
+	linkScmDevConnection = 'git@github.com:spring-projects/spring-integration-splunk.git'
 
 	shortName = 'splunk'
 }
@@ -57,14 +57,10 @@ dependencies {
 	compile "com.splunk:splunk:$splunkVersion"
 	compile "org.springframework.integration:spring-integration-core:$springIntegrationVersion"
 	compile "joda-time:joda-time:$jodaTimeVersion"
-	compile "commons-pool:commons-pool:$commonsPoolVersion"
 
-	testCompile "org.mockito:mockito-all:$mockitoVersion"
 	testCompile "org.springframework.integration:spring-integration-test:$springIntegrationVersion"
-	testCompile "junit:junit-dep:$junitVersion"
-	testCompile "log4j:log4j:$log4jVersion"
 	testCompile "org.springframework.integration:spring-integration-stream:$springIntegrationVersion"
-	jacoco group: "org.jacoco", name: "org.jacoco.agent", version: "0.5.6.201201232323", classifier: "runtime"
+	jacoco "org.jacoco:org.jacoco.agent:$jacocoVersion:runtime"
 }
 
 
@@ -73,16 +69,6 @@ eclipse {
 		natures += 'org.springframework.ide.eclipse.core.springnature'
 	}
 }
-
-sourceSets {
-	test {
-		resources {
-			srcDirs = ['src/test/resources', 'src/test/java']
-		}
-	}
-}
-
-
 
 // enable all compiler warnings; individual projects may customize further
 ext.xLintArg = '-Xlint:all,-options'

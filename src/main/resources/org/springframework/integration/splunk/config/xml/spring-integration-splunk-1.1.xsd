@@ -178,12 +178,15 @@ Indicates the connection timeout in ms.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="mode" type="xsd:string">
+			<xsd:attribute name="mode">
 				<xsd:annotation>
 					<xsd:documentation>
-						Search mode: normal, blocking, export, saved
+						Search mode: BLOCKING, NORMAL, REALTIME, EXPORT, SAVEDSEARCH
 					</xsd:documentation>
 				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:union memberTypes="searchMode xsd:string"/>
+				</xsd:simpleType>
 			</xsd:attribute>
 			<xsd:attribute name="count" type="xsd:string">
 				<xsd:annotation>
@@ -400,5 +403,15 @@ Indicates the connection timeout in ms.
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:attributeGroup>
+
+	<xsd:simpleType name="searchMode">
+		<xsd:restriction base="xsd:token">
+			<xsd:enumeration value="BLOCKING" />
+			<xsd:enumeration value="NORMAL" />
+			<xsd:enumeration value="REALTIME" />
+			<xsd:enumeration value="EXPORT" />
+			<xsd:enumeration value="SAVEDSEARCH" />
+		</xsd:restriction>
+	</xsd:simpleType>
 
 </xsd:schema>
