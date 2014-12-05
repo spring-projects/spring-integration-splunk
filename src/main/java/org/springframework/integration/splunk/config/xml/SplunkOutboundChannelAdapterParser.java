@@ -81,7 +81,7 @@ public class SplunkOutboundChannelAdapterParser extends AbstractOutboundChannelA
 
 			ManagedList<RuntimeBeanReference> splunkServersList = new ManagedList<RuntimeBeanReference>();
 
-			for (String splunkServerBeanName : StringUtils.delimitedListToStringArray(splunkServerBeanNames, ";")) {
+			for (String splunkServerBeanName : StringUtils.commaDelimitedListToStringArray(splunkServerBeanNames)) {
 				splunkServersList.add(new RuntimeBeanReference(splunkServerBeanName));
 			}
 			serviceFactoryBuilder.addConstructorArgValue(splunkServersList);

@@ -151,16 +151,6 @@ Indicates the connection timeout in ms.
 					maxOccurs="1" />
 			</xsd:sequence>
 			<xsd:attributeGroup ref="coreSplunkComponentAttributes" />
-			<xsd:attribute name="channel" type="xsd:string">
-				<xsd:annotation>
-					<xsd:appinfo>
-						<tool:annotation kind="ref">
-							<tool:expected-type
-								type="org.springframework.integration.core.MessageChannel" />
-						</tool:annotation>
-					</xsd:appinfo>
-				</xsd:annotation>
-			</xsd:attribute>
 			<xsd:attribute name="send-timeout" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
@@ -311,23 +301,6 @@ Indicates the connection timeout in ms.
 				</xsd:choice>
 			</xsd:sequence>
 			<xsd:attributeGroup ref="coreSplunkComponentAttributes" />
-			<xsd:attribute name="channel" type="xsd:string">
-				<xsd:annotation>
-					<xsd:appinfo>
-						<xsd:documentation>
-							Channel from which messages will be output.
-							When a message is sent to this channel it will
-							cause the query
-							to
-							be executed.
-						</xsd:documentation>
-						<tool:annotation kind="ref">
-							<tool:expected-type
-								type="org.springframework.integration.MessageChannel" />
-						</tool:annotation>
-					</xsd:appinfo>
-				</xsd:annotation>
-			</xsd:attribute>
 			<xsd:attribute name="order">
 				<xsd:annotation>
 					<xsd:documentation>
@@ -371,36 +344,11 @@ Indicates the connection timeout in ms.
 	</xsd:element>
 
 	<xsd:attributeGroup name="coreSplunkComponentAttributes">
-		<xsd:attribute name="id" type="xsd:string" use="optional">
+		<xsd:attributeGroup ref="integration:channelAdapterAttributes"/>
+		<xsd:attribute name="splunk-server-ref" use="required" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation>
-					Identifies the underlying Spring bean definition,
-					which is an
-					instance of either 'EventDrivenConsumer' or
-					'PollingConsumer',
-					depending on whether the component's input
-					channel is a
-					'SubscribableChannel' or 'PollableChannel'.
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-		<xsd:attribute name="auto-startup" default="true" use="optional">
-			<xsd:annotation>
-				<xsd:documentation>
-					Flag to indicate that the component should start
-					automatically
-					on startup (default true).
-				</xsd:documentation>
-			</xsd:annotation>
-			<xsd:simpleType>
-				<xsd:union memberTypes="xsd:boolean xsd:string" />
-			</xsd:simpleType>
-		</xsd:attribute>
-		<xsd:attribute name="splunk-server-ref" use="required"
-			type="xsd:string">
-			<xsd:annotation>
-				<xsd:documentation>
-					Splunk Server Bean Name
+					Comma separated list of Splunk Server Bean Names.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>

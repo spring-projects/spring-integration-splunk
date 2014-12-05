@@ -334,6 +334,7 @@ public class SplunkDataReader implements DataReader, InitializingBean, Disposabl
 		if (this.realTimeSearchJob == null || isJobInvalid(this.realTimeSearchJob)) {
 			Service service = this.serviceFactory.getService();
 			this.realTimeSearchJob = service.getJobs().create(this.search, queryArgs);
+			this.realTimeSearchResultOffset = 0;
 		}
 
 		while (!this.realTimeSearchJob.isReady()) {
