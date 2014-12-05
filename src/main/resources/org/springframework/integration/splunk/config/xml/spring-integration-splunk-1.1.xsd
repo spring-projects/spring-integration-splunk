@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.springframework.org/schema/integration/splunk"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:tool="http://www.springframework.org/schema/tool"
 	xmlns:integration="http://www.springframework.org/schema/integration"
 	targetNamespace="http://www.springframework.org/schema/integration/splunk"
@@ -223,7 +223,7 @@ Indicates the connection timeout in ms.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-						<xsd:attribute name="init-earliest-time" type="xsd:string" use="required">
+			<xsd:attribute name="init-earliest-time" type="xsd:string" use="required">
 				<xsd:annotation>
 					<xsd:documentation>
 						Time modifier for the start of the time window for the first search.
@@ -288,7 +288,8 @@ Indicates the connection timeout in ms.
 					<xsd:element name="index-writer" type="indexWriterType">
 						<xsd:annotation>
 							<xsd:documentation>
-								Defines a Data Writer for streaming data to an index, or the default index if not specified.
+								Defines a Data Writer for streaming data to an index,
+								or the default index if not specified.
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:element>
@@ -302,7 +303,8 @@ Indicates the connection timeout in ms.
 					<xsd:element name="submit-writer" type="indexWriterType">
 						<xsd:annotation>
 							<xsd:documentation>
-								Defines a Data Writer to submit data, using the REST interface, to an index, or the default index if not specified.
+								Defines a Data Writer to submit data, using the REST interface, to an index,
+								or the default index if not specified.
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:element>

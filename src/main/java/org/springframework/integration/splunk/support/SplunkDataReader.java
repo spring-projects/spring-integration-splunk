@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.integration.splunk.core.DataReader;
 import org.springframework.integration.splunk.core.ServiceFactory;
@@ -35,9 +36,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import com.splunk.Args;
+import com.splunk.Event;
 import com.splunk.Job;
 import com.splunk.JobArgs;
 import com.splunk.JobExportArgs;
+import com.splunk.JobResultsPreviewArgs;
 import com.splunk.ResultsReader;
 import com.splunk.ResultsReaderXml;
 import com.splunk.SavedSearch;
@@ -63,13 +66,15 @@ import com.splunk.Service;
  * @since 1.0
  *
  */
-public class SplunkDataReader implements DataReader, InitializingBean {
+public class SplunkDataReader implements DataReader, InitializingBean, DisposableBean {
 
 	private static final String DATE_FORMAT = "MM/dd/yy HH:mm:ss:SSS";
 
 	private static final String SPLUNK_TIME_FORMAT = "%m/%d/%y %H:%M:%S:%3N";
 
 	private static final Log logger = LogFactory.getLog(SplunkDataReader.class);
+
+	private final ServiceFactory serviceFactory;
 
 	private SearchMode mode;
 
@@ -91,9 +96,11 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 
 	private String initEarliestTime;
 
-	private transient Calendar lastSuccessfulReadTime;
+	private volatile Calendar lastSuccessfulReadTime;
 
-	private final ServiceFactory serviceFactory;
+	private volatile Job realTimeSearchJob;
+
+	private volatile int realTimeSearchResultOffset;
 
 	public SplunkDataReader(ServiceFactory serviceFactory) {
 		this.serviceFactory = serviceFactory;
@@ -198,9 +205,7 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 				return exportSearch();
 			}
 			case REALTIME: {
-				throw new UnsupportedOperationException("The 'real-time' search isn't supported " +
-						"because of the infinite Splunk Job nature.");
-//			return realtimeSearch();
+				return realtimeSearch();
 			}
 		}
 		return null;
@@ -214,13 +219,11 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 	 *         Time difference between last successful read and start time;
 	 */
 	private String calculateEarliestTime(Calendar startTime, boolean realtime) {
-		String result = null;
 		if (realtime) {
-			result = calculateEarliestTimeForRealTime(startTime);
+			return calculateEarliestTimeForRealTime(startTime);
 		}
 		DateFormat df = new SimpleDateFormat(DATE_FORMAT);
-		result = df.format(this.lastSuccessfulReadTime.getTime());
-		return result;
+		return df.format(this.lastSuccessfulReadTime.getTime());
 	}
 
 	private String calculateEarliestTimeForRealTime(Calendar startTime) {
@@ -278,16 +281,11 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 			else {
 				String calculatedEarliestTime = calculateEarliestTime(startTime, realtime);
 				if (calculatedEarliestTime != null) {
-					if (realtime) {
-						eTime = "rt" + calculatedEarliestTime;
-					}
-					else {
-						eTime = calculatedEarliestTime;
-					}
+					eTime = calculatedEarliestTime;
 				}
 			}
 		}
-		return eTime;
+		return realtime ? "rt" + eTime : eTime;
 	}
 
 	private List<SplunkEvent> runQuery(JobArgs queryArgs) throws Exception {
@@ -325,7 +323,7 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		return data;
 	}
 
-	private List<SplunkEvent> realtimeSearch() throws Exception {
+	private synchronized List<SplunkEvent> realtimeSearch() throws Exception {
 		logger.debug("realtime search start");
 
 		JobArgs queryArgs = new JobArgs();
@@ -333,15 +331,54 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		Calendar startTime = Calendar.getInstance();
 		populateArgs(queryArgs, startTime, true);
 
-		List<SplunkEvent> data = runQuery(queryArgs);
+		if (this.realTimeSearchJob == null || isJobInvalid(this.realTimeSearchJob)) {
+			Service service = this.serviceFactory.getService();
+			this.realTimeSearchJob = service.getJobs().create(this.search, queryArgs);
+		}
+
+		while (!this.realTimeSearchJob.isReady()) {
+			Thread.sleep(500);
+		}
+
 		this.lastSuccessfulReadTime = startTime;
-		return data;
+
+		List<SplunkEvent> result = new ArrayList<SplunkEvent>();
+
+		JobResultsPreviewArgs previewArgs = new JobResultsPreviewArgs();
+		previewArgs.setCount(this.count);
+		previewArgs.setOffset(this.realTimeSearchResultOffset);
+		previewArgs.setOutputMode(JobResultsPreviewArgs.OutputMode.XML);
+
+		int resultsCount = this.realTimeSearchJob.getResultPreviewCount();
+		if (resultsCount <= this.realTimeSearchResultOffset) {
+			return null;
+		}
+
+		InputStream stream = this.realTimeSearchJob.getResultsPreview(previewArgs);
+
+		ResultsReader resultsReader = new ResultsReaderXml(stream);
+
+		for (Event event : resultsReader) {
+			result.add(new SplunkEvent(event));
+		}
+
+		this.realTimeSearchResultOffset = this.count == 0
+				? resultsCount
+				: Math.min(this.realTimeSearchResultOffset + this.count, resultsCount);
+
+		return result;
 	}
 
-	/**
-	 * @throws Exception
-	 *
-	 */
+	private boolean isJobInvalid(Job job) {
+		try {
+			return job.isDone();
+		}
+		catch (Exception e) {
+			logger.warn("Search job isn't valid any more. Will be started a new one.", e);
+			return true;
+		}
+	}
+
 	private List<SplunkEvent> exportSearch() throws Exception {
 		logger.debug("export start");
 		List<SplunkEvent> result = new ArrayList<SplunkEvent>();
@@ -371,7 +408,7 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 		if (StringUtils.hasText(this.owner)) {
 			queryArgs.setOwner(this.owner);
 		}
-		queryArgs.setApp(StringUtils.hasText(this.app) ? this.app : "-");
+		queryArgs.setApp(StringUtils.hasText(this.app) ? this.app : "search");
 
 		Calendar startTime = Calendar.getInstance();
 
@@ -451,6 +488,13 @@ public class SplunkDataReader implements DataReader, InitializingBean {
 
 	public void afterPropertiesSet() throws Exception {
 		Assert.notNull(this.initEarliestTime, "initial earliest time can not be null");
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		if (this.realTimeSearchJob != null) {
+			this.realTimeSearchJob.finish();
+		}
 	}
 
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:int="http://www.springframework.org/schema/integration"
+	   xmlns:int-splunk="http://www.springframework.org/schema/integration/splunk"
+	   xsi:schemaLocation="http://www.springframework.org/schema/integration/splunk http://www.springframework.org/schema/integration/splunk/spring-integration-splunk.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<import resource="../SplunkCommon-context.xml"/>
+
+	<int-splunk:outbound-channel-adapter id="output"
+										 splunk-server-ref="splunkServer"
+										 source-type="Spring_Integration"
+										 source="Spring"
+										 host="SpringIO">
+		<int-splunk:submit-writer/>
+	</int-splunk:outbound-channel-adapter>
+
+	<int-splunk:inbound-channel-adapter splunk-server-ref="splunkServer"
+										search="search host=SpringIO"
+										channel="searchResults"
+										mode="REALTIME"
+										count="10"
+										init-earliest-time="">
+		<int:poller fixed-delay="100" max-messages-per-poll="1"/>
+	</int-splunk:inbound-channel-adapter>
+
+	<int:splitter input-channel="searchResults" output-channel="results"/>
+
+	<int:channel id="results">
+		<int:queue/>
+	</int:channel>
+
+</beans>
