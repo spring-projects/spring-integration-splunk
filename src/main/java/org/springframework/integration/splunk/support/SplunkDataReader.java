@@ -27,8 +27,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.Lifecycle;
 import org.springframework.integration.splunk.core.DataReader;
 import org.springframework.integration.splunk.core.ServiceFactory;
 import org.springframework.integration.splunk.event.SplunkEvent;
@@ -66,7 +66,7 @@ import com.splunk.Service;
  * @since 1.0
  *
  */
-public class SplunkDataReader implements DataReader, InitializingBean, DisposableBean {
+public class SplunkDataReader implements DataReader, InitializingBean, Lifecycle {
 
 	private static final String DATE_FORMAT = "MM/dd/yy HH:mm:ss:SSS";
 
@@ -101,6 +101,8 @@ public class SplunkDataReader implements DataReader, InitializingBean, Disposabl
 	private volatile Job realTimeSearchJob;
 
 	private volatile int realTimeSearchResultOffset;
+
+	private volatile boolean running;
 
 	public SplunkDataReader(ServiceFactory serviceFactory) {
 		this.serviceFactory = serviceFactory;
@@ -492,10 +494,22 @@ public class SplunkDataReader implements DataReader, InitializingBean, Disposabl
 	}
 
 	@Override
-	public void destroy() throws Exception {
+	public void start() {
+		this.running = true;
+	}
+
+	@Override
+	public void stop() {
 		if (this.realTimeSearchJob != null) {
 			this.realTimeSearchJob.finish();
 		}
+		this.realTimeSearchResultOffset = 0;
+		this.running = false;
+	}
+
+	@Override
+	public boolean isRunning() {
+		return this.running;
 	}
 
 }

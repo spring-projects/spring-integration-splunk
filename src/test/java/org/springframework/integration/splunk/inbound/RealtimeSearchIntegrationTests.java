@@ -19,15 +19,20 @@ package org.springframework.integration.splunk.inbound;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.integration.endpoint.SourcePollingChannelAdapter;
 import org.springframework.integration.splunk.event.SplunkEvent;
 import org.springframework.integration.splunk.rule.SplunkRunning;
+import org.springframework.integration.test.support.LongRunningIntegrationTest;
+import org.springframework.integration.test.util.TestUtils;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.PollableChannel;
@@ -35,6 +40,8 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.splunk.Job;
 
 /**
  * @author Artem Bilan
@@ -49,11 +56,17 @@ public class RealTimeSearchIntegrationTests {
 	@ClassRule
 	public static SplunkRunning splunkRunning = new SplunkRunning();
 
+	@ClassRule
+	public static LongRunningIntegrationTest longRunning = new LongRunningIntegrationTest();
+
 	@Autowired
 	private MessageChannel output;
 
 	@Autowired
 	private PollableChannel results;
+
+	@Autowired
+	private SourcePollingChannelAdapter inboundChannelAdapter;
 
 	@Test
 	public void testRealTimeSearch() throws Exception {
@@ -84,6 +97,42 @@ public class RealTimeSearchIntegrationTests {
 			assertEquals("" + i, event_id);
 		}
 
+		this.inboundChannelAdapter.stop();
+
+		Job job = TestUtils.getPropertyValue(this.inboundChannelAdapter,
+				"source.splunkExecutor.reader.realTimeSearchJob", Job.class);
+
+		int n = 0;
+
+		while (!job.isFinalized() && n++ < 10) {
+			Thread.sleep(100);
+		}
+
+		assertTrue(n < 10);
+
+		Thread.sleep(2000);
+
+		this.output.send(new GenericMessage<SplunkEvent>(new SplunkEvent("OUT_OF_SEARCH", "foo")));
+
+		Message<?> receive = this.results.receive(100);
+		assertNull(receive);
+
+		Thread.sleep(2000);
+
+		this.inboundChannelAdapter.start();
+
+		receive = this.results.receive(100);
+		assertNull(receive);
+
+		this.output.send(new GenericMessage<SplunkEvent>(new SplunkEvent("IN_SEARCH", "bar")));
+
+		receive = this.results.receive(10000);
+		assertNotNull(receive);
+		assertThat(receive.getPayload(), instanceOf(SplunkEvent.class));
+		SplunkEvent payload = (SplunkEvent) receive.getPayload();
+
+		assertEquals("IN_SEARCH", payload.getEventData().get("name"));
+		assertEquals("bar", payload.getEventData().get("event_id"));
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.integration.splunk.inbound;
 
 import java.util.List;
 
 import org.springframework.integration.context.IntegrationObjectSupport;
-import org.springframework.integration.core.MessageSource;
+import org.springframework.integration.core.LifecycleMessageSource;
 import org.springframework.integration.splunk.event.SplunkEvent;
 import org.springframework.integration.splunk.support.SplunkExecutor;
 import org.springframework.integration.support.MessageBuilder;
@@ -29,17 +30,18 @@ import org.springframework.util.Assert;
  * Polling data from Splunk to generate <code>Message</code>
  *
  * @author Jarred Li
+ * @author Artem Bilan
  * @since 1.0
  *
  */
-public class SplunkPollingChannelAdapter extends IntegrationObjectSupport implements MessageSource<List<SplunkEvent>> {
+public class SplunkPollingChannelAdapter extends IntegrationObjectSupport
+		implements LifecycleMessageSource<List<SplunkEvent>> {
 
 	private final SplunkExecutor splunkExecutor;
 
 	/**
 	 * Constructor taking a {@link SplunkExecutor} that provide all required Splunk
 	 * functionality.
-	 *
 	 * @param splunkExecutor Must not be null.
 	 */
 	public SplunkPollingChannelAdapter(SplunkExecutor splunkExecutor) {
@@ -58,7 +60,6 @@ public class SplunkPollingChannelAdapter extends IntegrationObjectSupport implem
 
 	/**
 	 * Uses {@link SplunkExecutor#poll()} to executes the Splunk operation.
-	 *
 	 * If {@link SplunkExecutor#poll()} returns null, this method will return
 	 * <code>null</code>. Otherwise, a new {@link Message} is constructed and returned.
 	 */
@@ -73,6 +74,21 @@ public class SplunkPollingChannelAdapter extends IntegrationObjectSupport implem
 	@Override
 	public String getComponentType() {
 		return "splunk:inbound-channel-adapter";
+	}
+
+	@Override
+	public void start() {
+		this.splunkExecutor.start();
+	}
+
+	@Override
+	public void stop() {
+		this.splunkExecutor.stop();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return this.splunkExecutor.isRunning();
 	}
 
 }

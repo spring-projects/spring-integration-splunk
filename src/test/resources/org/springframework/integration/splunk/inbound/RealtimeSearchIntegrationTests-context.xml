@@ -17,7 +17,8 @@
 		<int-splunk:submit-writer/>
 	</int-splunk:outbound-channel-adapter>
 
-	<int-splunk:inbound-channel-adapter splunk-server-ref="splunkServer"
+	<int-splunk:inbound-channel-adapter id="inboundChannelAdapter"
+										splunk-server-ref="splunkServer"
 										search="search host=SpringIO"
 										channel="searchResults"
 										mode="REALTIME"
