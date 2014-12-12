@@ -374,7 +374,7 @@ public class SplunkDataReader implements DataReader, InitializingBean, Lifecycle
 
 	private boolean isJobInvalid(Job job) {
 		try {
-			return job.isDone();
+			return job.isDone() || job.isFailed();
 		}
 		catch (Exception e) {
 			logger.warn("Search job isn't valid any more. Will be started a new one.", e);
