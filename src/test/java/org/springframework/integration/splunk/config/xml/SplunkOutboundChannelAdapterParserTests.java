@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 the original author or authors.
+ * Copyright 2013-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.integration.splunk.config.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +44,7 @@ public class SplunkOutboundChannelAdapterParserTests {
 	private ApplicationContext appContext;
 
 	/**
-	 * Test method for {@link org.springframework.integration.splunk.config.xml.SplunkOutboundChannelAdapterParser#parseConsumer(org.w3c.dom.Element, org.springframework.beans.factory.xml.ParserContext)}.
+	 * Test method for {@link SplunkOutboundChannelAdapterParser#parseConsumer}.
 	 */
 	@Test
 	public void testParseConsumerElementParserContext() {
@@ -50,17 +53,17 @@ public class SplunkOutboundChannelAdapterParserTests {
 
 		AbstractSplunkDataWriter writer = appContext.getBean("splunkOutboundChannelAdapter.splunkExecutor.writer",
 				AbstractSplunkDataWriter.class);
-		 assertNotNull(writer);
+		assertNotNull(writer);
 
-		 assertTrue(writer instanceof SplunkSubmitWriter);
-		 assertEquals(false,writer.isAutoStartup());
-		 assertEquals(false,writer.isRunning());
+		assertTrue(writer instanceof SplunkSubmitWriter);
+		assertEquals(false, writer.isAutoStartup());
+		assertEquals(false, writer.isRunning());
 
 		String sourceType = "spring-integration";
-		 assertEquals(sourceType, writer.getArgs().get("sourcetype"));
+		assertEquals(sourceType, writer.getArgs().get("sourcetype"));
 
 		String source = "example5";
-		 assertEquals(source, writer.getArgs().get("source"));
+		assertEquals(source, writer.getArgs().get("source"));
 
 	}
 

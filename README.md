@@ -20,7 +20,7 @@ The Inbound channel adapter is used to read data from Splunk and output a messag
 	<int-splunk:inbound-channel-adapter id="splunkInboundChannelAdapter"
 		search="search spring:example"
 		splunk-server-ref="splunkServer"
-		channel="inputFromSplunk" mode="BLOCKING" earliestTime="-1d" latestTime="now" initEarliestTime="-1d">
+		channel="inputFromSplunk" mode="BLOCKING" earliest-time="-1d" latest-time="now" init-earliest-time="-1d">
 		<int:poller fixed-rate="5" time-unit="SECONDS"/>
 	</int-splunk:inbound-channel-adapter>
 ```
@@ -32,7 +32,7 @@ The Inbound channel adapter is used to read data from Splunk and output a messag
 	<int-splunk:inbound-channel-adapter id="splunkInboundChannelAdapter"
 		search="search spring:example"
 		splunk-server-ref="splunkServer"
-		channel="inputFromSplunk" mode="NORMAL" earliestTime="-1d" latestTime="now" initEarliestTime="-1d">
+		channel="inputFromSplunk" mode="NORMAL" earliest-time="-1d" latest-time="now" init-earliest-time="-1d">
 		<int:poller fixed-rate="5" time-unit="SECONDS"/>
 	</int-splunk:inbound-channel-adapter>
 ```
@@ -43,7 +43,7 @@ The Inbound channel adapter is used to read data from Splunk and output a messag
 ```xml
 	<int-splunk:inbound-channel-adapter id="splunkInboundChannelAdapter"
 		savedSearch="test" splunk-server-ref="splunkServer"
-		channel="inputFromSplunk" mode="SAVEDSEARCH" earliestTime="-1d" latestTime="now" initEarliestTime="-1d">
+		channel="inputFromSplunk" mode="SAVEDSEARCH" earliest-time="-1d" latest-time="now" init-earliest-time="-1d">
 		<int:poller fixed-rate="5" time-unit="SECONDS"/>
 	</int-splunk:inbound-channel-adapter>
 ```
@@ -54,17 +54,24 @@ The Inbound channel adapter is used to read data from Splunk and output a messag
 ```xml
 	<int-splunk:inbound-channel-adapter id="splunkInboundChannelAdapter"
 		search="search spring:example" splunk-server-ref="splunkServer" channel="inputFromSplunk"
-		mode="REALTIME" earliestTime="-5s" latestTime="rt" initEarliestTime="-1d">
+		mode="REALTIME" earliest-time="-5s" latest-time="rt" init-earliest-time="-1d">
 		<int:poller fixed-rate="5" time-unit="SECONDS"/>
 	</int-splunk:inbound-channel-adapter>
 ```
+
+The Realtime search starts only the single log-lived Splunk Job, so each `poll` asks the same Jobs for current
+`ResultsPreview` storing `offset` for the next poll. If Realtime search Job is finished or failed the next `poll`
+will start a new fresh Job with the current `offset`.
+
+**Important**. It isn't recommended to use `fixed-rate` on the `<poller>`. Since we have only a single search Job,
+concurrent `ResultsPreview`s may return the same events from Splunk.
 
 ### Export:
 
 ```xml
 	<int-splunk:inbound-channel-adapter id="splunkInboundChannelAdapter"
 		auto-startup="true" search="search spring:example" splunk-server-ref="splunkServer" channel="inputFromSplunk"
-		mode="EXPORT" earliestTime="-5d" latestTime="now" initEarliestTime="-1d">
+		mode="EXPORT" earliest-time="-5d" latest-time="now" init-earliest-time="-1d">
 		<int:poller fixed-rate="5" time-unit="SECONDS"/>
 	</int-splunk:inbound-channel-adapter>
 ```
@@ -87,7 +94,7 @@ The outbound channel adapter requires a child *-writer element which defines rel
 		id="splunkOutboundChannelAdapter"
 		channel="outputToSplunk"
 		splunk-server-ref="splunkServer"
-		sourceType="spring-integration"
+		source-type="spring-integration"
 		source="example2">
 		<int-splunk:submit-writer index="foo"/>
 	</int-splunk:outbound-channel-adapter>
@@ -128,10 +135,10 @@ The outbound channel adapter requires a child *-writer element which defines rel
 Alternatively, you can configure a Splunk Server failover mechanism
 
 ```xml
-  <int-splunk:server id="splunkServer" username="admin" password="password" timeout="5000" 
+  <int-splunk:server id="splunkServer" username="admin" password="password" timeout="5000"
   					 host="somehost.someplace.com" port="9000" />
 
-  <int-splunk:server id="splunkServerBackup" username="admin" password="password" timeout="5000" 
+  <int-splunk:server id="splunkServerBackup" username="admin" password="password" timeout="5000"
    					 host="somehost.someotherplace.com" port="9000" />
 
   <util:list id="splunkServersList">
@@ -151,7 +158,8 @@ Additional server properties include (see [splunk](http://docs.splunk.com/Docume
 * scope
 * owner
 
-The default host is *localhost* and the default port is *8089*. The *timeout* attribute indicates how long to wait for a connection in miliseconds.
+The default host is *localhost* and the default port is *8089*. The *timeout* attribute indicates how long to wait
+for a connection in milliseconds.
 
 
 Development

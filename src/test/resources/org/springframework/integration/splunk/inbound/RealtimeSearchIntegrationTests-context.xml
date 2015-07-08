@@ -7,14 +7,30 @@
 		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<import resource="SplunkInboundChannelAdapterParserCommon-context.xml"/>
+	<import resource="../SplunkCommon-context.xml"/>
 
-	<int-splunk:inbound-channel-adapter id="splunkInboundChannelAdapter"
-										auto-startup="false" search="search spring:example"
+	<int-splunk:outbound-channel-adapter id="output"
+										 splunk-server-ref="splunkServer"
+										 source-type="Spring_Integration"
+										 source="Spring"
+										 host="SpringIO">
+		<int-splunk:submit-writer/>
+	</int-splunk:outbound-channel-adapter>
+
+	<int-splunk:inbound-channel-adapter id="inboundChannelAdapter"
 										splunk-server-ref="splunkServer"
-										channel="inputFromSplunk" mode="BLOCKING" earliest-time="-1d" latest-time="now"
-										init-earliest-time="-1d" field-list="field1, field2">
-		<int:poller fixed-rate="5000"/>
+										search="search host=SpringIO"
+										channel="searchResults"
+										mode="REALTIME"
+										count="10"
+										init-earliest-time="">
+		<int:poller fixed-delay="100" max-messages-per-poll="1"/>
 	</int-splunk:inbound-channel-adapter>
+
+	<int:splitter input-channel="searchResults" output-channel="results"/>
+
+	<int:channel id="results">
+		<int:queue/>
+	</int:channel>
 
 </beans>

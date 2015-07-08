@@ -58,7 +58,8 @@ public class SplunkInboundChannelAdapterParser extends AbstractPollingInboundCha
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "saved-search");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "owner");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "app");
-		IntegrationNamespaceUtils.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "init-earliest-time");
+		IntegrationNamespaceUtils
+				.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "init-earliest-time", true);
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "earliest-time");
 		IntegrationNamespaceUtils.setValueIfAttributeDefined(splunkDataReaderBuilder, element, "latest-time");
 

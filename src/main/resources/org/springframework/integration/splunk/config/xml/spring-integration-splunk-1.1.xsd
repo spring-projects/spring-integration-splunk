@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns="http://www.springframework.org/schema/integration/splunk"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:tool="http://www.springframework.org/schema/tool"
 	xmlns:integration="http://www.springframework.org/schema/integration"
 	targetNamespace="http://www.springframework.org/schema/integration/splunk"
@@ -151,16 +151,6 @@ Indicates the connection timeout in ms.
 					maxOccurs="1" />
 			</xsd:sequence>
 			<xsd:attributeGroup ref="coreSplunkComponentAttributes" />
-			<xsd:attribute name="channel" type="xsd:string">
-				<xsd:annotation>
-					<xsd:appinfo>
-						<tool:annotation kind="ref">
-							<tool:expected-type
-								type="org.springframework.integration.core.MessageChannel" />
-						</tool:annotation>
-					</xsd:appinfo>
-				</xsd:annotation>
-			</xsd:attribute>
 			<xsd:attribute name="send-timeout" type="xsd:string">
 				<xsd:annotation>
 					<xsd:documentation><![CDATA[
@@ -178,12 +168,15 @@ Indicates the connection timeout in ms.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-			<xsd:attribute name="mode" type="xsd:string">
+			<xsd:attribute name="mode">
 				<xsd:annotation>
 					<xsd:documentation>
-						Search mode: normal, blocking, export, saved
+						Search mode: BLOCKING, NORMAL, REALTIME, EXPORT, SAVEDSEARCH
 					</xsd:documentation>
 				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:union memberTypes="searchMode xsd:string"/>
+				</xsd:simpleType>
 			</xsd:attribute>
 			<xsd:attribute name="count" type="xsd:string">
 				<xsd:annotation>
@@ -220,7 +213,7 @@ Indicates the connection timeout in ms.
 					</xsd:documentation>
 				</xsd:annotation>
 			</xsd:attribute>
-						<xsd:attribute name="init-earliest-time" type="xsd:string" use="required">
+			<xsd:attribute name="init-earliest-time" type="xsd:string" use="required">
 				<xsd:annotation>
 					<xsd:documentation>
 						Time modifier for the start of the time window for the first search.
@@ -285,7 +278,8 @@ Indicates the connection timeout in ms.
 					<xsd:element name="index-writer" type="indexWriterType">
 						<xsd:annotation>
 							<xsd:documentation>
-								Defines a Data Writer for streaming data to an index, or the default index if not specified.
+								Defines a Data Writer for streaming data to an index,
+								or the default index if not specified.
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:element>
@@ -299,30 +293,14 @@ Indicates the connection timeout in ms.
 					<xsd:element name="submit-writer" type="indexWriterType">
 						<xsd:annotation>
 							<xsd:documentation>
-								Defines a Data Writer to submit data, using the REST interface, to an index, or the default index if not specified.
+								Defines a Data Writer to submit data, using the REST interface, to an index,
+								or the default index if not specified.
 							</xsd:documentation>
 						</xsd:annotation>
 					</xsd:element>
 				</xsd:choice>
 			</xsd:sequence>
 			<xsd:attributeGroup ref="coreSplunkComponentAttributes" />
-			<xsd:attribute name="channel" type="xsd:string">
-				<xsd:annotation>
-					<xsd:appinfo>
-						<xsd:documentation>
-							Channel from which messages will be output.
-							When a message is sent to this channel it will
-							cause the query
-							to
-							be executed.
-						</xsd:documentation>
-						<tool:annotation kind="ref">
-							<tool:expected-type
-								type="org.springframework.integration.MessageChannel" />
-						</tool:annotation>
-					</xsd:appinfo>
-				</xsd:annotation>
-			</xsd:attribute>
 			<xsd:attribute name="order">
 				<xsd:annotation>
 					<xsd:documentation>
@@ -366,39 +344,24 @@ Indicates the connection timeout in ms.
 	</xsd:element>
 
 	<xsd:attributeGroup name="coreSplunkComponentAttributes">
-		<xsd:attribute name="id" type="xsd:string" use="optional">
+		<xsd:attributeGroup ref="integration:channelAdapterAttributes"/>
+		<xsd:attribute name="splunk-server-ref" use="required" type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation>
-					Identifies the underlying Spring bean definition,
-					which is an
-					instance of either 'EventDrivenConsumer' or
-					'PollingConsumer',
-					depending on whether the component's input
-					channel is a
-					'SubscribableChannel' or 'PollableChannel'.
-				</xsd:documentation>
-			</xsd:annotation>
-		</xsd:attribute>
-		<xsd:attribute name="auto-startup" default="true" use="optional">
-			<xsd:annotation>
-				<xsd:documentation>
-					Flag to indicate that the component should start
-					automatically
-					on startup (default true).
-				</xsd:documentation>
-			</xsd:annotation>
-			<xsd:simpleType>
-				<xsd:union memberTypes="xsd:boolean xsd:string" />
-			</xsd:simpleType>
-		</xsd:attribute>
-		<xsd:attribute name="splunk-server-ref" use="required"
-			type="xsd:string">
-			<xsd:annotation>
-				<xsd:documentation>
-					Splunk Server Bean Name
+					Comma separated list of Splunk Server Bean Names.
 				</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
 	</xsd:attributeGroup>
+
+	<xsd:simpleType name="searchMode">
+		<xsd:restriction base="xsd:token">
+			<xsd:enumeration value="BLOCKING" />
+			<xsd:enumeration value="NORMAL" />
+			<xsd:enumeration value="REALTIME" />
+			<xsd:enumeration value="EXPORT" />
+			<xsd:enumeration value="SAVEDSEARCH" />
+		</xsd:restriction>
+	</xsd:simpleType>
 
 </xsd:schema>

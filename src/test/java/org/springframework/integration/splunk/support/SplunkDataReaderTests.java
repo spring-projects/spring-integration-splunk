@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2012 the original author or authors.
+ * Copyright 2013-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.integration.splunk.support;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,9 +26,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-import com.splunk.Job;
-import com.splunk.JobCollection;
-import com.splunk.Service;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -35,8 +35,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.integration.splunk.core.ServiceFactory;
 import org.springframework.integration.splunk.event.SplunkEvent;
 
+import com.splunk.Job;
+import com.splunk.JobArgs;
+import com.splunk.JobCollection;
+import com.splunk.Service;
+
 /**
  * @author Jarred Li
+ * @author Artem Bilan
  * @since 1.0
  *
  */
@@ -46,14 +52,10 @@ public class SplunkDataReaderTests {
 
 	@Before
 	public void before() {
-		ServiceFactory serviceFactory =serviceFactory();
+		ServiceFactory serviceFactory = serviceFactory();
 		reader = new SplunkDataReader(serviceFactory);
 	}
 
-	/**
-	 * Test method for {@link org.springframework.integration.splunk.support.SplunkDataReader#search()}.
-	 * @throws Exception
-	 */
 	@Test
 	public void testBlockingSearch() throws Exception {
 		reader.setMode(SearchMode.BLOCKING);
@@ -88,9 +90,11 @@ public class SplunkDataReaderTests {
 
 		try {
 			is = new ClassPathResource("splunk-data.xml").getInputStream();
-		} catch (FileNotFoundException e) {
+		}
+		catch (FileNotFoundException e) {
 			Assert.fail("can not read splunk data file");
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			Assert.fail("can not read splunk data file");
 		}
 
@@ -101,11 +105,12 @@ public class SplunkDataReaderTests {
 		when(blockingJob.isDone()).thenReturn(true);
 		when(blockingJob.getResultCount()).thenReturn(5);
 		when(blockingJob.getResults(any(Map.class))).thenReturn(is);
-		when(jobCollection.create(any(String.class), any(Map.class))).thenReturn(blockingJob);
+		when(jobCollection.create(any(String.class), any(JobArgs.class))).thenReturn(blockingJob);
 		when(service.getJobs()).thenReturn(jobCollection);
 
 		ServiceFactory serviceFactory = mock(ServiceFactory.class);
 		when(serviceFactory.getService()).thenReturn(service);
 		return serviceFactory;
 	}
+
 }

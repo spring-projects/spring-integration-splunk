@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2012 the original author or authors.
+ * Copyright 2002-2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.integration.splunk.support;
 
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.context.Lifecycle;
 import org.springframework.messaging.MessageHandlingException;
 import org.springframework.integration.splunk.core.DataReader;
 import org.springframework.integration.splunk.core.DataWriter;
@@ -31,15 +34,27 @@ import org.springframework.messaging.MessagingException;
  *
  * @author Jarred Li
  * @author David Turanski
+ * @author Artem Bilan
  * @since 1.0
  *
  */
-public class SplunkExecutor {
+public class SplunkExecutor implements Lifecycle {
 
 	private static final Log logger = LogFactory.getLog(SplunkExecutor.class);
 
 	private DataReader reader;
+
 	private DataWriter writer;
+
+	private volatile boolean running;
+
+	public void setReader(DataReader reader) {
+		this.reader = reader;
+	}
+
+	public void setWriter(DataWriter writer) {
+		this.writer = writer;
+	}
 
 	/**
 	 * Executes the outbound Splunk Operation.
@@ -76,13 +91,31 @@ public class SplunkExecutor {
 		return queryData;
 	}
 
-	public void setReader(DataReader reader) {
-		this.reader = reader;
+
+	@Override
+	public void start() {
+		if (this.reader instanceof Lifecycle) {
+			((Lifecycle) this.reader).start();
+		}
+		if (this.writer instanceof Lifecycle) {
+			((Lifecycle) this.writer).start();
+		}
+		this.running = true;
 	}
 
-	public void setWriter(DataWriter writer) {
-		this.writer = writer;
+	@Override
+	public void stop() {
+		if (this.reader instanceof Lifecycle) {
+			((Lifecycle) this.reader).stop();
+		}
+		if (this.writer instanceof Lifecycle) {
+			((Lifecycle) this.writer).stop();
+		}
+		this.running = false;
 	}
 
-
+	@Override
+	public boolean isRunning() {
+		return this.running;
+	}
 }
