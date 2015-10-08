@@ -29,6 +29,7 @@ import org.springframework.integration.config.xml.AbstractOutboundChannelAdapter
 import org.springframework.integration.config.xml.IntegrationNamespaceUtils;
 import org.springframework.integration.splunk.outbound.SplunkOutboundChannelAdapter;
 import org.springframework.integration.splunk.support.SplunkArgsFactoryBean;
+import org.springframework.integration.splunk.support.SplunkHECWriter;
 import org.springframework.integration.splunk.support.SplunkIndexWriter;
 import org.springframework.integration.splunk.support.SplunkServiceFactory;
 import org.springframework.integration.splunk.support.SplunkSubmitWriter;
@@ -42,6 +43,7 @@ import org.springframework.util.xml.DomUtils;
  * @author Jarred Li
  * @author David Turanski
  * @author Olivier Lamy
+ * @author Damien Dallimore
  * @since 1.0
  *
  */
@@ -129,6 +131,23 @@ public class SplunkOutboundChannelAdapterParser extends AbstractOutboundChannelA
 			Element dataWriter = DomUtils.getChildElementByTagName(element, "tcp-writer");
 			dataWriterBuilder = BeanDefinitionBuilder.genericBeanDefinition(SplunkTcpWriter.class);
 			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "port");
+
+		}
+		if (DomUtils.getChildElementByTagName(element, "hec-writer") != null) {
+			Element dataWriter = DomUtils.getChildElementByTagName(element, "hec-writer");
+			dataWriterBuilder = BeanDefinitionBuilder.genericBeanDefinition(SplunkHECWriter.class);
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "host");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "port");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "token");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "https");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "poolsize");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "index");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "source");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "sourcetype");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "batchMode");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "maxBatchSizeBytes");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "maxBatchSizeEvents");
+			IntegrationNamespaceUtils.setValueIfAttributeDefined(dataWriterBuilder, dataWriter, "maxInactiveTimeBeforeBatchFlush");
 
 		}
 
