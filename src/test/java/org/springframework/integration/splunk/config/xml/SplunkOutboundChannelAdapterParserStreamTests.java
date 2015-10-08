@@ -23,14 +23,15 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.integration.splunk.support.AbstractSplunkDataWriter;
-import org.springframework.integration.splunk.support.SplunkIndexWriter;
+import org.springframework.integration.splunk.core.DataWriter;
+import org.springframework.integration.splunk.support.SplunkHECWriter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * @author Jarred Li
  * @author Artem Bilan
+ * @author Damien Dallimore
  * @since 1.0
  *
  */
@@ -46,11 +47,11 @@ public class SplunkOutboundChannelAdapterParserStreamTests {
 		Object adapter = appContext.getBean("splunkOutboundChannelAdapter");
 		assertNotNull(adapter);
 
-		AbstractSplunkDataWriter writer = appContext.getBean("splunkOutboundChannelAdapter.splunkExecutor.writer",
-				AbstractSplunkDataWriter.class);
+		DataWriter writer = appContext.getBean("splunkOutboundChannelAdapter.splunkExecutor.writer",
+				SplunkHECWriter.class);
 		assertNotNull(writer);
-		assertTrue(writer instanceof SplunkIndexWriter);
-		assertEquals("foo", ((SplunkIndexWriter) writer).getIndex());
+		
+		assertEquals("main", ((SplunkHECWriter) writer).getIndex());
 	}
 
 }
