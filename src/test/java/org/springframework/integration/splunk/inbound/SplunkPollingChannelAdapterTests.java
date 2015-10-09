@@ -51,7 +51,7 @@ public class SplunkPollingChannelAdapterTests {
 	public void testReceive() {
 		List<SplunkEvent> data = new ArrayList<SplunkEvent>();
 		SplunkEvent sd = new SplunkEvent("spring", "spring:example");
-		sd.setCommonDesc("description");
+		sd.addPair("test","foo");
 		data.add(sd);
 		when(executor.poll()).thenReturn(data);
 

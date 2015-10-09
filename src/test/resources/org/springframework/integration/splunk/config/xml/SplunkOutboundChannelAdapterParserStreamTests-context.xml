@@ -12,12 +12,15 @@
 
 	<int:channel id="outputToSplunk"/>
 
+	
 	<int-splunk:outbound-channel-adapter
 			id="splunkOutboundChannelAdapter" auto-startup="false" order="1"
 			channel="outputToSplunk" splunk-server-ref="splunkServer"
 			source-type="spring-integration" source="example5"
 			host="test.host" host-regex="test.host.*">
-		<int-splunk:index-writer index="foo"/>
+		<int-splunk:hec-writer host="localhost" port="8088" token="4DBFC24E-19A2-4D31-9055-2139C818DBDD" https="false" 
+		                       poolsize="3" index="main" source="spring_integration"  sourcetype="spring_integration_hec" batchMode="true" 
+		                       maxBatchSizeBytes="1048576" maxBatchSizeEvents="100" maxInactiveTimeBeforeBatchFlush="5000" />
 	</int-splunk:outbound-channel-adapter>
 
 </beans>
