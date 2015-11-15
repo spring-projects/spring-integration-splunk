@@ -1,12 +1,12 @@
-description = 'Spring Integration Splunk Adapter'
+description = 'Spring Integration Splunk Support'
 
 buildscript {
 	repositories {
 		maven { url 'http://repo.spring.io/plugins-release' }
 	}
 	dependencies {
-		classpath 'org.springframework.build.gradle:docbook-reference-plugin:0.2.8'
-		classpath 'org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE'
+		classpath 'io.spring.gradle:docbook-reference-plugin:0.3.1'
+		classpath 'io.spring.gradle:spring-io-plugin:0.0.4.RELEASE'
 	}
 }
 
@@ -14,16 +14,17 @@ apply plugin: 'java'
 apply from:   "${rootProject.projectDir}/publish-maven.gradle"
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'jacoco'
 
 if (project.hasProperty('platformVersion')) {
 	apply plugin: 'spring-io'
 
-	repositories {
-		maven { url "https://repo.spring.io/libs-snapshot" }
-	}
-
-	dependencies {
-		springIoVersions "io.spring.platform:platform-versions:${platformVersion}@properties"
+	dependencyManagement {
+		springIoTestRuntime {
+			imports {
+				mavenBom "io.spring.platform:platform-bom:${platformVersion}"
+			}
+		}
 	}
 }
 
@@ -31,40 +32,40 @@ group = 'org.springframework.integration'
 
 repositories {
 	maven { url 'http://repo.spring.io/libs-milestone' }
+	if (project.hasProperty('platformVersion')) {
+		maven { url 'https://repo.spring.io/snapshot' }
+	}
 }
 
-sourceCompatibility=1.6
-targetCompatibility=1.6
+sourceCompatibility = targetCompatibility = 1.7
 
 ext {
-	linkHomepage = 'https://github.com/spring-projects/spring-integration-extensions'
+
+	jodaTimeVersion = '2.3'
+	splunkVersion = '1.5.0.0'
+	springIntegrationVersion = '4.2.2.RELEASE'
+
+	linkHomepage = 'https://github.com/spring-projects/spring-integration-splunk'
 	linkCi       = 'https://build.spring.io/browse/INTEXT'
 	linkIssue    = 'https://jira.spring.io/browse/INTEXT'
-	linkScmUrl           = 'https://github.com/spring-projects/spring-integration-extensions'
-	linkScmConnection    = 'https://github.com/spring-projects/spring-integration-extensions.git'
-	linkScmDevConnection = 'git@github.com:spring-projects/spring-integration-extensions.git'
+	linkScmUrl           = 'https://github.com/spring-projects/spring-integration-splunk'
+	linkScmConnection    = 'https://github.com/spring-projects/spring-integration-splunk.git'
+	linkScmDevConnection = 'git@github.com:spring-projects/spring-integration-splunk.git'
 
 	shortName = 'splunk'
 }
 
-// See http://www.gradle.org/docs/current/userguide/dependency_management.html#sub:configurations
-// and http://www.gradle.org/docs/current/dsl/org.gradle.api.artifacts.ConfigurationContainer.html
-configurations {
-	jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
+jacoco {
+	toolVersion = "0.7.2.201409121644"
 }
 
 dependencies {
 	compile "com.splunk:splunk:$splunkVersion"
 	compile "org.springframework.integration:spring-integration-core:$springIntegrationVersion"
 	compile "joda-time:joda-time:$jodaTimeVersion"
-	compile "commons-pool:commons-pool:$commonsPoolVersion"
 
-	testCompile "org.mockito:mockito-all:$mockitoVersion"
 	testCompile "org.springframework.integration:spring-integration-test:$springIntegrationVersion"
-	testCompile "junit:junit-dep:$junitVersion"
-	testCompile "log4j:log4j:$log4jVersion"
 	testCompile "org.springframework.integration:spring-integration-stream:$springIntegrationVersion"
-	jacoco group: "org.jacoco", name: "org.jacoco.agent", version: "0.5.6.201201232323", classifier: "runtime"
 }
 
 
@@ -85,13 +86,24 @@ sourceSets {
 
 
 // enable all compiler warnings; individual projects may customize further
-ext.xLintArg = '-Xlint:all,-options'
-[compileJava, compileTestJava]*.options*.compilerArgs = [xLintArg]
+[compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:all,-options']
 
 test {
 	// suppress all console output during testing unless running `gradle -i`
 	logging.captureStandardOutput(LogLevel.INFO)
-	jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=*"
+	maxHeapSize = "1024m"
+	jacoco {
+		append = false
+		destinationFile = file("$buildDir/jacoco.exec")
+	}
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled false
+		csv.enabled false
+		html.destination "${buildDir}/reports/jacoco/html"
+	}
 }
 
 task sourcesJar(type: Jar) {
@@ -150,23 +162,23 @@ task schemaZip(type: Zip) {
 	group = 'Distribution'
 	classifier = 'schema'
 	description = "Builds -${classifier} archive containing all " +
-		"XSDs for deployment at static.springframework.org/schema."
+			"XSDs for deployment at static.springframework.org/schema."
 
-		def Properties schemas = new Properties();
+	def Properties schemas = new Properties();
 
-		project.sourceSets.main.resources.find {
-			it.path.endsWith('META-INF/spring.schemas')
-		}?.withInputStream { schemas.load(it) }
+	project.sourceSets.main.resources.find {
+		it.path.endsWith("META-INF${File.separator}spring.schemas")
+	}?.withInputStream { schemas.load(it) }
 
-		for (def key : schemas.keySet()) {
-			File xsdFile = project.sourceSets.main.resources.find {
-				it.path.endsWith(schemas.get(key))
-			}
-			assert xsdFile != null
-			into ("integration/${shortName}") {
-				from xsdFile.path
-			}
+	for (def key : schemas.keySet()) {
+		File xsdFile = project.sourceSets.main.resources.find {
+			it.path.replaceAll('\\\\', '/').endsWith(schemas.get(key))
 		}
+		assert xsdFile != null
+		into ("integration/${shortName}") {
+			from xsdFile.path
+		}
+	}
 }
 
 task docsZip(type: Zip) {
@@ -263,8 +275,6 @@ task dist(dependsOn: assemble) {
 
 task wrapper(type: Wrapper) {
 	description = 'Generates gradlew[.bat] scripts'
-	gradleVersion = '1.12'
+	gradleVersion = '2.5'
     distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip"
 }
-
-defaultTasks 'build'
