@@ -44,7 +44,19 @@ ext {
 	jodaTimeVersion = '2.3'
 	splunkVersion = '1.5.0.0'
 	springIntegrationVersion = '4.2.2.RELEASE'
-
+	commonsCodecVersion= '1.9'
+	commonsLoggingVersion= '1.2'
+	commonsHTTPAsyncClientVersion= '4.1'
+	commonsHTTPAsyncClientCacheVersion= '4.1'
+	commonsHTTPClientVersion= '4.4.1'
+	commonsHTTPClientCacheVersion= '4.4.1'
+	commonsHTTPCoreVersion= '4.4.1'
+	commonsHTTPCoreNIOVersion= '4.4.1'
+	commonsCodecVersion = '1.9'
+	commonsLoggingVersion = '1.2'
+	commonsPoolVersion = '1.6'
+	mockitoVersion = '1.9.5'
+	
 	linkHomepage = 'https://github.com/spring-projects/spring-integration-splunk'
 	linkCi       = 'https://build.spring.io/browse/INTEXT'
 	linkIssue    = 'https://jira.spring.io/browse/INTEXT'
@@ -75,8 +87,8 @@ dependencies {
 	testCompile "org.mockito:mockito-all:$mockitoVersion"
 	testCompile "org.springframework.integration:spring-integration-test:$springIntegrationVersion"
 	testCompile "org.springframework.integration:spring-integration-stream:$springIntegrationVersion"
-	testCompile "junit:junit-dep:$junitVersion"
-	testCompile "log4j:log4j:$log4jVersion"
+	//testCompile "junit:junit-dep:$junitVersion"
+	//testCompile "log4j:log4j:$log4jVersion"
 }
 
 
