@@ -96,7 +96,6 @@ public class SplunkEvent implements Serializable {
 	 * @param eventName the event name
 	 * @param eventID the event id
 	 * @param useInternalDate whether or not to add a date to the event string
-	 * @param quoteValues whether or not to put quotes around values
 	 */
 	public SplunkEvent(String eventName, String eventID, boolean useInternalDate) {
 
