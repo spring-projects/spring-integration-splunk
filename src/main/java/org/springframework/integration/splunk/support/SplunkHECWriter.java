@@ -23,8 +23,6 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
-import com.splunk.Args;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
@@ -48,16 +46,17 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 import org.springframework.context.SmartLifecycle;
 import org.springframework.integration.splunk.core.DataWriter;
-import org.springframework.integration.splunk.core.ServiceFactory;
 import org.springframework.integration.splunk.event.SplunkEvent;
 
+import com.splunk.Args;
+
 /**
- * 
+ *
  * A {@code org.springframework.integration.splunk.core.DataWriter} that creates
  * a HTTP Event Collector connection to Splunk
- * 
+ *
  * @author Damien Dallimore
- * 
+ *
  */
 public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 
@@ -67,7 +66,6 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 	protected Args args;
 	private int phase;
 	private boolean running;
-	private final ServiceFactory serviceFactory;
 
 	// configurable parameters
 	private String token;
@@ -99,9 +97,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 		}
 	};
 
-	public SplunkHECWriter(ServiceFactory serviceFactory, Args args) {
-
-		this.serviceFactory = serviceFactory;
+	public SplunkHECWriter(Args args) {
 		this.args = args;
 	}
 
@@ -217,13 +213,11 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 				message = wrapMessageInQuotes(message);
 
 			// could use a JSON Object , but the JSON is so trivial , just
-			// building it with a StringBuffer
-			StringBuffer json = new StringBuffer();
-			json.append("{\"").append("event\":").append(message).append(",\"")
-					.append("index\":\"").append(getIndex()).append("\",\"")
-					.append("source\":\"").append(getSource()).append("\",\"")
-					.append("sourcetype\":\"").append(getSourcetype())
-					.append("\"").append("}");
+			// building it with a StringBuilder
+			StringBuilder json = new StringBuilder();
+			json.append("{\"").append("event\":").append(message).append(",\"").append("index\":\"").append(getIndex())
+					.append("\",\"").append("source\":\"").append(getSource()).append("\",\"").append("sourcetype\":\"")
+					.append(getSourcetype()).append("\"").append("}");
 
 			currentMessage = json.toString();
 
@@ -387,7 +381,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 
 	private String rollOutBatchBuffer() {
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		for (String event : batchBuffer) {
 			sb.append(event);
@@ -397,7 +391,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 	}
 
 	private void hecPost(String currentMessage) throws Exception {
-
+	
 		HttpPost post = new HttpPost(uri);
 		post.addHeader("Authorization", "Splunk " + getToken());
 
@@ -413,7 +407,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.context.Lifecycle#isRunning()
 	 */
 	public boolean isRunning() {
@@ -422,7 +416,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.context.Phased#getPhase()
 	 */
 	public int getPhase() {
@@ -435,7 +429,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.context.SmartLifecycle#isAutoStartup()
 	 */
 	public boolean isAutoStartup() {
@@ -448,7 +442,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.springframework.context.SmartLifecycle#stop(java.lang.Runnable)
 	 */
 	public synchronized void stop(Runnable callback) {

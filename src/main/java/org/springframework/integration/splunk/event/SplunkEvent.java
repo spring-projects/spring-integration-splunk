@@ -84,7 +84,7 @@ public class SplunkEvent implements Serializable {
 
 	/**
 	 * A Copy constructor
-	 * @param splunkEvent
+	 * @param splunkEvent to copy
 	 */
 	public SplunkEvent(SplunkEvent splunkEvent) {
 		this.eventMessage = splunkEvent.eventMessage;
@@ -125,60 +125,60 @@ public class SplunkEvent implements Serializable {
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, char value) {
 		addPair(key, String.valueOf(value));
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, boolean value) {
 		addPair(key, String.valueOf(value));
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, double value) {
 		addPair(key, String.valueOf(value));
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, long value) {
 		addPair(key, String.valueOf(value));
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, int value) {
 		addPair(key, String.valueOf(value));
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, Object value) {
 		addPair(key, value.toString());
@@ -239,14 +239,14 @@ public class SplunkEvent implements Serializable {
 	}
 
 	/**
-	 * Add a key value pair
+	 * Add a key value pair to json
 	 *
-	 * @param key
-	 * @param value
+	 * @param key with which the specified value is to be associated
+	 * @param value to be associated
 	 */
 	public void addPair(String key, String value) {
 		Assert.notNull(key, "key cannot be null");
-		
+
 		//start json
 		if (this.eventMessage.length() == 0){
 			this.eventMessage.append("{");
@@ -269,15 +269,15 @@ public class SplunkEvent implements Serializable {
 		String event = "";
 
 		if (useInternalDate) {
-			addPair("timestamp",DATE_FORMATTER.print(new Date().getTime()));			
-		} 
-		
+			addPair("timestamp",DATE_FORMATTER.print(new Date().getTime()));
+		}
+
 		//end json
 		if (this.eventMessage.length() != 0){
 		  eventMessage.append("}");
 		}
 		event = eventMessage.toString();
-	
+
 		return event;
 	}
 

@@ -30,9 +30,9 @@ public class SplunkEventTests {
 		data.put("foo", "foo");
 		data.put("bar", "1");
 		SplunkEvent event = new SplunkEvent(data);
-		
+
 		assertEquals(23,event.toString().length());
-		
+
 	}
 	public void testGetEventDataEmpty() {
 		SplunkEvent event = new SplunkEvent( );

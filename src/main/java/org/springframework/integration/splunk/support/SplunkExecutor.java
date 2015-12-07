@@ -43,6 +43,8 @@ public class SplunkExecutor {
 
 	/**
 	 * Executes the outbound Splunk Operation.
+	 * @param message to write
+	 * @return result at the moment always null :-\
 	 */
 	public Object write(final Message<?> message) {
 		try {
@@ -62,7 +64,9 @@ public class SplunkExecutor {
 
 	/**
 	 * Execute the Splunk operation.
+	 * @return queryData result
 	 */
+
 	public List<SplunkEvent> poll() {
 		logger.debug("poll start:");
 		List<SplunkEvent> queryData = null;

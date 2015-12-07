@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.integration.splunk.core.ServiceFactory;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * A {@link FactoryBean} for creating a {@link Service}
@@ -64,12 +65,24 @@ public class SplunkServiceFactory implements ServiceFactory {
 		this.splunkServers = new ArrayList<SplunkServer>(splunkServers);
 	}
 
+	public SplunkServiceFactory() {
+		this.splunkServers = new ArrayList<SplunkServer>();
+	}
+
 	@Override
 	public synchronized Service getService() {
 		return getServiceInternal();
 	}
 
 	private Service getServiceInternal() {
+	
+	
+		if(CollectionUtils.isEmpty(splunkServers))
+		{
+			String message = String.format("no Splunk Servers is configured");
+			LOGGER.error(message);
+			throw new RuntimeException(message);
+		}
 
 		for (SplunkServer splunkServer : splunkServers) {
 			Service service = servicePerServer.get(splunkServer);

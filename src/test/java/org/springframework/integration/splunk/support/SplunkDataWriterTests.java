@@ -59,9 +59,9 @@ public class SplunkDataWriterTests {
 
 		SplunkEvent sd = new SplunkEvent("spring", "spring:example");
 		sd.addPair("foo","description");
-		
+
 		writer.write(sd);
-		
+
 		verify(receiver).submit(eq(args), matches("\\{.*spring:example.*\\}"));
 
 		writer.stop();

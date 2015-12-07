@@ -328,28 +328,28 @@ Indicates the connection timeout in ms.
 					</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="batchMode" type="xsd:boolean" use="optional">
+		<xsd:attribute name="batchmode" type="xsd:boolean" use="optional">
 				<xsd:annotation>
 					<xsd:documentation>
 						Whether to buffer up events and send in batches to Splunk vs one at a time
 					</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="maxBatchSizeBytes" type="xsd:long" use="optional">
+		<xsd:attribute name="maxbatchsizebytes" type="xsd:long" use="optional">
 				<xsd:annotation>
 					<xsd:documentation>
 						Flush the buffer when it reaches this size in bytes
 					</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="maxBatchSizeEvents" type="xsd:long" use="optional">
+		<xsd:attribute name="maxbatchsizeevents" type="xsd:long" use="optional">
 				<xsd:annotation>
 					<xsd:documentation>
 						Flush the buffer when it reaches this size in number of events
 					</xsd:documentation>
 			</xsd:annotation>
 		</xsd:attribute>
-		<xsd:attribute name="maxInactiveTimeBeforeBatchFlush" type="xsd:long" use="optional">
+		<xsd:attribute name="maxinactivetimebeforebatchflush" type="xsd:long" use="optional">
 				<xsd:annotation>
 					<xsd:documentation>
 						Flush the buffer after this period of time of receiving no events
@@ -486,7 +486,7 @@ Indicates the connection timeout in ms.
 				<xsd:union memberTypes="xsd:boolean xsd:string" />
 			</xsd:simpleType>
 		</xsd:attribute>
-		<xsd:attribute name="splunk-server-ref" use="required"
+		<xsd:attribute name="splunk-server-ref" use="optional"
 			type="xsd:string">
 			<xsd:annotation>
 				<xsd:documentation>

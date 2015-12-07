@@ -56,6 +56,7 @@ ext {
 	commonsLoggingVersion = '1.2'
 	commonsPoolVersion = '1.6'
 	mockitoVersion = '1.9.5'
+	gsonVersion = '2.3.1'
 	
 	linkHomepage = 'https://github.com/spring-projects/spring-integration-splunk'
 	linkCi       = 'https://build.spring.io/browse/INTEXT'
@@ -73,6 +74,7 @@ jacoco {
 
 dependencies {
 	compile "com.splunk:splunk:$splunkVersion"
+	compile "com.google.code.gson:gson:$gsonVersion"
 	compile "org.springframework.integration:spring-integration-core:$springIntegrationVersion"
 	compile "joda-time:joda-time:$jodaTimeVersion"
 	compile "commons-pool:commons-pool:$commonsPoolVersion"

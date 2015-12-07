@@ -50,7 +50,7 @@ public class SplunkOutboundChannelAdapterParserStreamTests {
 		DataWriter writer = appContext.getBean("splunkOutboundChannelAdapter.splunkExecutor.writer",
 				SplunkHECWriter.class);
 		assertNotNull(writer);
-		
+
 		assertEquals("main", ((SplunkHECWriter) writer).getIndex());
 	}
 

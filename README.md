@@ -126,7 +126,6 @@ The outbound channel adapter requires a child *-writer element which defines rel
 	<int-splunk:outbound-channel-adapter
 		id="splunkOutboundChannelAdapter"
 		channel="outputToSplunk"
-		splunk-server-ref="splunkServer"
 	  >
 		<int-splunk:hec-writer host="somehost" port="8088" token="4DBFC24E-19A2-4D31-9055-2139C818DBDD" https="false" 
 		                       poolsize="3" index="main" source="springintegration"  sourcetype="test" batchMode="true" 
