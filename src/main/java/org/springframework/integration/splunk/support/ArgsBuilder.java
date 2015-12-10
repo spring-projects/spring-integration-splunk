@@ -15,16 +15,19 @@ package org.springframework.integration.splunk.support;
 import com.splunk.Args;
 
 /**
- * Build {@link Args} instance.
- * Supports method chaining the classic Builder patter
+ * Build {@link Args} instance. Supports method chaining the classic Builder
+ * patter
  * @author David Turanski
  *
  */
 public class ArgsBuilder {
 
 	private String sourceType;
+
 	private String source;
+
 	private String host;
+
 	private String hostRegex;
 
 	public Args build() {
@@ -67,7 +70,7 @@ public class ArgsBuilder {
 	}
 
 	/**
-	
+	 * 
 	 * @param host to punt in args
 	 * @return this
 	 */

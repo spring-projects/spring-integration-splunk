@@ -63,32 +63,47 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private boolean autoStartup = true;
+
 	protected Args args;
+
 	private int phase;
+
 	private boolean running;
 
 	// configurable parameters
 	private String token;
+
 	private String host = "localhost";
+
 	private int port = 8088;
+
 	private boolean https = false;
+
 	private int poolsize = 1;
 
 	private String index = "main";
+
 	private String source = "spring_integration";
+
 	private String sourcetype = "spring_integration_hec";
 
 	private boolean batchMode = false;
+
 	private long maxBatchSizeBytes = 1048576; // 1MB
+
 	private long maxBatchSizeEvents = 100; // 100 events
+
 	private long maxInactiveTimeBeforeBatchFlush = 5000;// 5 secs
 
 	// batch buffer
 	private List<String> batchBuffer;
+
 	private long currentBatchSizeBytes = 0;
+
 	private long lastEventReceivedTime;
 
 	private CloseableHttpAsyncClient httpClient;
+
 	private URI uri;
 
 	private static final HostnameVerifier HOSTNAME_VERIFIER = new HostnameVerifier() {
@@ -215,9 +230,11 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 			// could use a JSON Object , but the JSON is so trivial , just
 			// building it with a StringBuilder
 			StringBuilder json = new StringBuilder();
-			json.append("{\"").append("event\":").append(message).append(",\"").append("index\":\"").append(getIndex())
-					.append("\",\"").append("source\":\"").append(getSource()).append("\",\"").append("sourcetype\":\"")
-					.append(getSourcetype()).append("\"").append("}");
+			json.append("{\"").append("event\":").append(message).append(",\"")
+					.append("index\":\"").append(getIndex()).append("\",\"")
+					.append("source\":\"").append(getSource()).append("\",\"")
+					.append("sourcetype\":\"").append(getSourcetype())
+					.append("\"").append("}");
 
 			currentMessage = json.toString();
 
@@ -231,19 +248,23 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 					currentBatchSizeBytes = 0;
 					hecPost(currentMessage);
 				}
-			} else {
+			}
+			else {
 				hecPost(currentMessage);
 			}
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			try {
 				stop();
-			} catch (Exception e1) {
+			}
+			catch (Exception e1) {
 			}
 
 			try {
 				start();
-			} catch (Exception e2) {
+			}
+			catch (Exception e2) {
 			}
 		}
 
@@ -260,10 +281,9 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 			Registry<SchemeIOSessionStrategy> sslSessionStrategy = RegistryBuilder
 					.<SchemeIOSessionStrategy> create()
 					.register("http", NoopIOSessionStrategy.INSTANCE)
-					.register(
-							"https",
-							new SSLIOSessionStrategy(getSSLContext(),
-									HOSTNAME_VERIFIER)).build();
+					.register("https", new SSLIOSessionStrategy(getSSLContext(),
+							HOSTNAME_VERIFIER))
+					.build();
 
 			ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
 			PoolingNHttpClientConnectionManager cm = new PoolingNHttpClientConnectionManager(
@@ -285,7 +305,8 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 			if (isBatchMode()) {
 				new BatchBufferActivityCheckerThread(this).start();
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		}
 
 		this.running = true;
@@ -301,7 +322,8 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 		try {
 			httpClient.close();
 
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 		}
 
 		this.running = false;
@@ -328,7 +350,8 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 				String currentMessage = "";
 				try {
 					long currentTime = System.currentTimeMillis();
-					if ((currentTime - lastEventReceivedTime) >= getMaxInactiveTimeBeforeBatchFlush()) {
+					if ((currentTime
+							- lastEventReceivedTime) >= getMaxInactiveTimeBeforeBatchFlush()) {
 						if (batchBuffer.size() > 0) {
 							currentMessage = rollOutBatchBuffer();
 							batchBuffer.clear();
@@ -338,15 +361,18 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 					}
 
 					Thread.sleep(1000);
-				} catch (Exception e) {
+				}
+				catch (Exception e) {
 					try {
 						parent.stop();
-					} catch (Exception e1) {
+					}
+					catch (Exception e1) {
 					}
 
 					try {
 						parent.start();
-					} catch (Exception e2) {
+					}
+					catch (Exception e2) {
 					}
 				}
 
@@ -365,7 +391,8 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 		try {
 			sslContext = SSLContexts.custom()
 					.loadTrustMaterial(null, acceptingTrustStrategy).build();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			// Handle error
 		}
 		return sslContext;
@@ -391,7 +418,7 @@ public class SplunkHECWriter implements DataWriter, SmartLifecycle {
 	}
 
 	private void hecPost(String currentMessage) throws Exception {
-	
+
 		HttpPost post = new HttpPost(uri);
 		post.addHeader("Authorization", "Splunk " + getToken());
 
