@@ -39,16 +39,20 @@ public class SplunkExecutor {
 	private static final Log logger = LogFactory.getLog(SplunkExecutor.class);
 
 	private DataReader reader;
+
 	private DataWriter writer;
 
 	/**
 	 * Executes the outbound Splunk Operation.
+	 * @param message to write
+	 * @return result at the moment always null :-\
 	 */
 	public Object write(final Message<?> message) {
 		try {
 			SplunkEvent payload = (SplunkEvent) message.getPayload();
 			writer.write(payload);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			String errorMsg = "error in writing data into Splunk";
 			logger.warn(errorMsg, e);
 			throw new MessageHandlingException(message, errorMsg, e);
@@ -62,13 +66,16 @@ public class SplunkExecutor {
 
 	/**
 	 * Execute the Splunk operation.
+	 * @return queryData result
 	 */
+
 	public List<SplunkEvent> poll() {
 		logger.debug("poll start:");
 		List<SplunkEvent> queryData = null;
 		try {
 			queryData = reader.read();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			String errorMsg = "search Splunk data failed";
 			logger.warn(errorMsg, e);
 			throw new MessagingException(errorMsg, e);
@@ -83,6 +90,5 @@ public class SplunkExecutor {
 	public void setWriter(DataWriter writer) {
 		this.writer = writer;
 	}
-
 
 }

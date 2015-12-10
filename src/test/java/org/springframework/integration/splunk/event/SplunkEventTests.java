@@ -28,18 +28,15 @@ public class SplunkEventTests {
 	public void testGetEventData() {
 		Map<String,String> data = new HashMap<String,String>();
 		data.put("foo", "foo");
-		data.put("bar", null);
+		data.put("bar", "1");
 		SplunkEvent event = new SplunkEvent(data);
-		Map<String,String> eventData = event.getEventData();
-		assertEquals(data.size(),eventData.size());
-		for (String key: eventData.keySet()) {
-			assertEquals(data.get(key),eventData.get(key));
-		}
+
+		assertEquals(23,event.toString().length());
+
 	}
 	public void testGetEventDataEmpty() {
 		SplunkEvent event = new SplunkEvent( );
-		Map<String,String> eventData = event.getEventData();
-		assertEquals(0,eventData.size());
+		assertEquals(0,event.toString().length());
 	}
 
 	@Test(expected=RuntimeException.class)
@@ -48,21 +45,4 @@ public class SplunkEventTests {
 		event.addPair(null, "foo");
 	}
 
-	@Test
-	public void testCopyConstructor() {
-		Map<String,String> data = new HashMap<String,String>();
-		data.put("foo", "foo");
-		data.put("bar", "bar");
-		SplunkEvent event = new SplunkEvent(data);
-		SplunkEvent event2 = new SplunkEvent(event);
-		assertEquals(event.quoteValues, event2.quoteValues);
-		assertEquals(event.useInternalDate,event2.useInternalDate);
-		Map<String,String> eventData = event.getEventData();
-		Map<String,String> event2Data = event2.getEventData();
-
-		assertEquals(eventData.size(),event2Data.size());
-		for (String key: eventData.keySet()) {
-			assertEquals(eventData.get(key),event2Data.get(key));
-		}
-	}
 }

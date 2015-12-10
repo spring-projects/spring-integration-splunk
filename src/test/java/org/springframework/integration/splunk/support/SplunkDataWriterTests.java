@@ -58,10 +58,11 @@ public class SplunkDataWriterTests {
 	public void testWrite() throws Exception {
 
 		SplunkEvent sd = new SplunkEvent("spring", "spring:example");
-		sd.setCommonDesc("description");
+		sd.addPair("foo","description");
+
 		writer.write(sd);
 
-		verify(receiver).submit(eq(args), matches(".*spring:example.*\n"));
+		verify(receiver).submit(eq(args), matches("\\{.*spring:example.*\\}"));
 
 		writer.stop();
 	}

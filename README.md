@@ -72,11 +72,14 @@ The Inbound channel adapter is used to read data from Splunk and output a messag
 Outbound channel adapter:
 ----------------------------------------------------------------------------------------------
 
-The Outbound channel adapter is used to write data to Splunk from a Spring Integration message channel. There are 3 types of data writers provided:
+The Outbound channel adapter is used to write data to Splunk from a Spring Integration message channel. There are 4 types of data writers provided:
 
 * submit - Use's Splunk's REST API. Appropriate for small or infrequent data loads. Posts data to a named index or the default if not specified.
 * index - Streams data to a named index or the default if not specified.
 * tcp - Streams data to a tcp port associated with a defined tcp input.
+* hec - Sends data to Splunk using the high performannce HTTP Event Collector
+
+It is strongly recommended that you use the "hec" adaptor. The other 3 are legacy implementations.
 
 The outbound channel adapter requires a child *-writer element which defines related attributes:
 
@@ -114,6 +117,19 @@ The outbound channel adapter requires a child *-writer element which defines rel
 		splunk-server-ref="splunkServer"
 	  >
 		<int-splunk:tcp-writer port="9999"/>
+	</int-splunk:outbound-channel-adapter>
+```
+
+### HEC (HTTP Event Collector)
+
+```xml
+	<int-splunk:outbound-channel-adapter
+		id="splunkOutboundChannelAdapter"
+		channel="outputToSplunk"
+	  >
+		<int-splunk:hec-writer host="somehost" port="8088" token="4DBFC24E-19A2-4D31-9055-2139C818DBDD" https="false" 
+		                       poolsize="3" index="main" source="springintegration"  sourcetype="test" batchMode="true" 
+		                       maxBatchSizeBytes="1048576" maxBatchSizeEvents="50000" maxInactiveTimeBeforeBatchFlush="5000" />
 	</int-splunk:outbound-channel-adapter>
 ```
 
@@ -165,4 +181,5 @@ Development
 To generate Eclipse metadata (e.g., .classpath and .project files), do the following:
 
 	./gradlew eclipse
+
 

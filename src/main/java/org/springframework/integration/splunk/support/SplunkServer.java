@@ -87,7 +87,7 @@ public class SplunkServer {
 
 	/**
 	 *
-	 * @param scheme
+	 * @param scheme to use
 	 */
 	public void setScheme(String scheme) {
 		this.scheme = scheme;
@@ -103,7 +103,7 @@ public class SplunkServer {
 
 	/**
 	 *
-	 * @param app
+	 * @param app name to use
 	 */
 	public void setApp(String app) {
 		this.app = app;
@@ -119,7 +119,7 @@ public class SplunkServer {
 
 	/**
 	 *
-	 * @param owner
+	 * @param owner to use
 	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
@@ -161,8 +161,8 @@ public class SplunkServer {
 	}
 
 	/**
-	 * set the timeout in ms.
-	 * @param timeout
+	 *
+	 * @param timeout set the timeout in ms.
 	 */
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;

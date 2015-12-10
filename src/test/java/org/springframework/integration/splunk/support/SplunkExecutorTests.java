@@ -58,7 +58,7 @@ public class SplunkExecutorTests {
 	@Test
 	public void testHandleMessage() throws Exception {
 		SplunkEvent sd = new SplunkEvent("spring", "spring:example");
-		sd.setCommonDesc("description");
+		sd.addPair("foo","description");
 		Message<SplunkEvent> message = MessageBuilder.withPayload(sd).build();
 		executor.handleMessage(message);
 		verify(writer).write(sd);
@@ -72,11 +72,11 @@ public class SplunkExecutorTests {
 	public void testPoll() throws Exception {
 		List<SplunkEvent> data = new ArrayList<SplunkEvent>();
 		SplunkEvent sd = new SplunkEvent("spring", "spring:example");
-		sd.setCommonDesc("description");
+		sd.addPair("foo","description");
 		data.add(sd);
 
 		sd = new SplunkEvent("spring", "spring:example");
-		sd.setCommonDesc("description");
+		sd.addPair("foo","description");
 		data.add(sd);
 		when(reader.read()).thenReturn(data);
 

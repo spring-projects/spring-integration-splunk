@@ -1,11 +1,11 @@
 /*
  * Copyright 2002-2013 the original author or authors.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
  * the License. You may obtain a copy of the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
@@ -15,15 +15,19 @@ package org.springframework.integration.splunk.support;
 import com.splunk.Args;
 
 /**
- * Build {@link Args} instance. Supports method chaining
+ * Build {@link Args} instance. Supports method chaining the classic Builder
+ * patter
  * @author David Turanski
  *
  */
 public class ArgsBuilder {
-	
+
 	private String sourceType;
+
 	private String source;
+
 	private String host;
+
 	private String hostRegex;
 
 	public Args build() {
@@ -46,7 +50,9 @@ public class ArgsBuilder {
 	}
 
 	/**
-	 * @param sourceType the sourceType to set
+	 *
+	 * @param sourceType to put in args
+	 * @return this
 	 */
 	public ArgsBuilder setSourceType(String sourceType) {
 		this.sourceType = sourceType;
@@ -54,7 +60,9 @@ public class ArgsBuilder {
 	}
 
 	/**
-	 * @param source the source to set
+	 *
+	 * @param source to put in args
+	 * @return this
 	 */
 	public ArgsBuilder setSource(String source) {
 		this.source = source;
@@ -62,7 +70,9 @@ public class ArgsBuilder {
 	}
 
 	/**
-	 * @param host the host to set
+	 * 
+	 * @param host to punt in args
+	 * @return this
 	 */
 	public ArgsBuilder setHost(String host) {
 		this.host = host;
@@ -70,7 +80,9 @@ public class ArgsBuilder {
 	}
 
 	/**
-	 * @param hostRegex the hostRegex to set
+	 *
+	 * @param hostRegex to put in args
+	 * @return this
 	 */
 	public ArgsBuilder setHostRegex(String hostRegex) {
 		this.hostRegex = hostRegex;
