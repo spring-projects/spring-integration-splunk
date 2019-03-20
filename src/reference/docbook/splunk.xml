@@ -32,11 +32,11 @@
 	xmlns:int="http://www.springframework.org/schema/integration"
 	xmlns:int-splunk="http://www.springframework.org/schema/integration/splunk"
 	xsi:schemaLocation="http://www.springframework.org/schema/integration/splunk
-		http://www.springframework.org/schema/integration/splunk/spring-integration-splunk.xsd
+		https://www.springframework.org/schema/integration/splunk/spring-integration-splunk.xsd
 		http://www.springframework.org/schema/integration
-		http://www.springframework.org/schema/integration/spring-integration.xsd
+		https://www.springframework.org/schema/integration/spring-integration.xsd
 		http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd">
+		https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 </beans>]]></programlisting>
 
@@ -49,9 +49,9 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:int-splunk="http://www.springframework.org/schema/integration/splunk"
 	xsi:schemaLocation="http://www.springframework.org/schema/integration/splunk
-		http://www.springframework.org/schema/integration/splunk/spring-integration-splunk.xsd
+		https://www.springframework.org/schema/integration/splunk/spring-integration-splunk.xsd
 		http://www.springframework.org/schema/beans
-		http://www.springframework.org/schema/beans/spring-beans.xsd">
+		https://www.springframework.org/schema/beans/spring-beans.xsd">
 	...
 	<int-splunk:server id="splunkServer" host="somehost" port="8089"
 		userName="user" password="password" owner="admin"/>
@@ -211,7 +211,7 @@
 		</para>
 		<para>
 			You can get more information on the rage search from
-			<ulink url="http://docs.splunk.com/Documentation/Splunk/latest/User/ChangeTheTimeRangeOfYourSearch">
+			<ulink url="https://docs.splunk.com/Documentation/Splunk/latest/User/ChangeTheTimeRangeOfYourSearch">
 			Splunk</ulink>.
 		</para>
 	</section>
