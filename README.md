@@ -144,7 +144,7 @@ Alternatively, you can configure a Splunk Server failover mechanism
   </bean>
 ```
 
-Additional server properties include (see [splunk](http://docs.splunk.com/Documentation/Splunk/latest) documentation for details):
+Additional server properties include (see [splunk](https://docs.splunk.com/Documentation/Splunk/latest) documentation for details):
 
 * app
 * scheme
