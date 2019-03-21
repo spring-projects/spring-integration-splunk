@@ -212,7 +212,7 @@ public class NetworkTrafficGenericEvent extends SplunkEvent {
 	/**
 	 * The hex bit that specifies TCP 'type of service'
 	 *
-	 * @see <a href="http://en.wikipedia.org/wiki/Type_of_Service">Type of
+	 * @see <a href="https://en.wikipedia.org/wiki/Type_of_Service">Type of
 	 *      Service</a>
 	 */
 	public static String NETWORK_TRAFFIC_GENERIC_TOS = "tos";
